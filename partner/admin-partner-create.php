@@ -6,9 +6,7 @@
     <title>Tambah Lembaga Penyalur - Admin</title>
     <link rel="stylesheet" href="../assests/css/style.css">
     <style>
-        * {
-            box-sizing: border-box;
-        }
+        * { box-sizing: border-box; }
         .form-container {
             max-width: 700px;
             margin: 40px auto;
@@ -17,27 +15,21 @@
             border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
         }
-        .form-group {
-            margin-bottom: 20px;
-        }
+        .form-group { margin-bottom: 20px; }
         .form-group label {
             display: block;
             font-weight: bold;
             margin-bottom: 5px;
             color: #333;
         }
-        .form-group input, 
-        .form-group textarea {
+        .form-group input, .form-group textarea {
             width: 100%;
             padding: 10px;
             border: 1px solid #ccc;
             border-radius: 4px;
             font-size: 1em;
         }
-        .form-actions {
-            display: flex;
-            gap: 10px;
-        }
+        .form-actions { display: flex; gap: 10px; }
         .btn {
             padding: 10px 20px;
             border: none;
@@ -57,7 +49,7 @@
         <div class="container">
             <a href="../index.html" class="brand">Admin Panel</a>
             <ul class="nav-links">
-                <li><a href="admin-partner-table.html">Kelola Mitra</a></li>
+                <li><a href="admin-partner-table.php">Kelola Mitra</a></li>
             </ul>
         </div>
     </nav>
@@ -67,7 +59,7 @@
             <h1>Tambah Lembaga Penyalur Baru</h1>
             <p style="color: #666; margin-bottom: 20px;">Isi formulir di bawah ini untuk menambahkan mitra yayasan baru.</p>
 
-            <form action="admin-partner-table.html" method="POST" enctype="multipart/form-data" onsubmit="alert('Data berhasil ditambahkan!');">
+            <form action="admin-partner-store.php" method="POST" enctype="multipart/form-data">
                 
                 <div class="form-group">
                     <label for="nama_lembaga">Nama Lembaga / Yayasan</label>
@@ -101,7 +93,7 @@
 
                 <div class="form-actions">
                     <button type="submit" class="btn btn-primary">Simpan Data</button>
-                    <a href="admin-partner-table.html" class="btn btn-secondary">Batal</a>
+                    <a href="admin-partner-table.php" class="btn btn-secondary">Batal</a>
                 </div>
 
             </form>

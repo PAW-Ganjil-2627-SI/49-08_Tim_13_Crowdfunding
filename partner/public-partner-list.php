@@ -1,20 +1,27 @@
+<?php
+include '../koneksi.php';
+
+$search = isset($_GET['q']) ? mysqli_real_escape_string($koneksi, trim($_GET['q'])) : '';
+
+if (!empty($search)) {
+    $query_str = "SELECT * FROM partners WHERE nama_lembaga LIKE '%$search%' OR alamat LIKE '%$search%' ORDER BY id DESC";
+} else {
+    $query_str = "SELECT * FROM partners ORDER BY id DESC";
+}
+
+$query = mysqli_query($koneksi, $query_str);
+?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Daftar Lembaga Penyalur - Publik</title>
-    <!-- Panggil CSS global -->
     <link rel="stylesheet" href="../assests/css/style.css">
     
     <style>
-        * {
-            box-sizing: border-box;
-        }
-        .partner-search {
-            margin: 20px 0 30px;
-            max-width: 500px;
-        }
+        * { box-sizing: border-box; }
+        .partner-search { margin: 20px 0 30px; max-width: 500px; }
         .partner-search input {
             width: 100%;
             padding: 12px 16px;
@@ -61,16 +68,8 @@
             flex-direction: column;
             flex-grow: 1;
         }
-        .partner-card-body h3 {
-            margin-top: 0;
-            margin-bottom: 10px;
-            color: #222;
-        }
-        .partner-info {
-            font-size: 0.9em;
-            color: #555;
-            margin-bottom: 6px;
-        }
+        .partner-card-body h3 { margin-top: 0; margin-bottom: 10px; color: #222; }
+        .partner-info { font-size: 0.9em; color: #555; margin-bottom: 6px; }
         .partner-desc {
             font-size: 0.88em;
             color: #666;
@@ -89,64 +88,52 @@
             font-weight: 500;
             transition: background 0.2s ease;
         }
-        .btn-detail:hover {
-            background: #0056b3;
-        }
+        .btn-detail:hover { background: #0056b3; }
     </style>
 </head>
 <body>
 
-    <!-- Navbar Publik -->
     <nav class="navbar">
         <div class="container">
-            <a href="../index.html" class="brand">NamaProject</a>
+            <a href="../index.html" class="brand">MR. BUAS</a>
             <ul class="nav-links">
-                <li><a href="public-partner-list.html">Lembaga Penyalur</a></li>
+                <li><a href="public-partner-list.php">Lembaga Penyalur</a></li>
             </ul>
         </div>
     </nav>
 
-    <!-- Konten Utama -->
     <main class="container" style="padding: 40px 20px;">
         <h1>Daftar Lembaga Penyalur (Mitra)</h1>
         <p style="color: #666;">Berikut adalah daftar yayasan dan lembaga penyalur yang bekerja sama dengan kami.</p>
 
-        <!-- Form Pencarian -->
-        <div class="partner-search">
-            <input type="text" placeholder="Cari nama lembaga atau lokasi...">
-        </div>
+        <form method="GET" action="public-partner-list.php" class="partner-search">
+            <input type="text" name="q" placeholder="Cari nama lembaga atau lokasi..." value="<?= htmlspecialchars($search); ?>">
+        </form>
 
-        <!-- Kartu Mitra -->
         <div class="partner-card-container">
-            
-            <!-- Card 1 -->
-            <div class="partner-card">
-                <div class="partner-logo-wrapper">
-                    <img src="../assests/images/logo-placeholder.png" alt="Yayasan Berkah Mandiri">
-                </div>
-                <div class="partner-card-body">
-                    <h3>Yayasan Berkah Mandiri</h3>
-                    <p class="partner-info"><strong>Alamat:</strong> Jl. Ahmad Yani No. 12, Bekasi</p>
-                    <p class="partner-info"><strong>PIC Lapangan:</strong> Budi Santoso</p>
-                    <p class="partner-desc">Berfokus pada penyaluran bantuan pendidikan, pemberdayaan anak yatim, dan bantuan fakir miskin.</p>
-                    <a href="public-partner-detail.html?id=1" class="btn-detail">Lihat Detail</a>
-                </div>
-            </div>
-
-            <!-- Card 2 -->
-            <div class="partner-card">
-                <div class="partner-logo-wrapper">
-                    <img src="../assests/images/logo-placeholder.png" alt="Panti Asuhan Kasih Ibu">
-                </div>
-                <div class="partner-card-body">
-                    <h3>Panti Asuhan Kasih Ibu</h3>
-                    <p class="partner-info"><strong>Alamat:</strong> Jl. Cut Meutia No. 45, Tangerang</p>
-                    <p class="partner-info"><strong>PIC Lapangan:</strong> Siti Aminah</p>
-                    <p class="partner-desc">Mengelola pengasuhan dan kebutuhan operasional harian untuk anak-anak terlantar.</p>
-                    <a href="public-partner-detail.html?id=2" class="btn-detail">Lihat Detail</a>
-                </div>
-            </div>
-
+            <?php
+            if (mysqli_num_rows($query) > 0) {
+                while ($row = mysqli_fetch_assoc($query)) {
+                    $logo = !empty($row['logo']) ? "../assests/images/" . $row['logo'] : "../assests/images/hero-home.jpg";
+            ?>
+                    <div class="partner-card">
+                        <div class="partner-logo-wrapper">
+                            <img src="<?= $logo; ?>" alt="<?= htmlspecialchars($row['nama_lembaga']); ?>">
+                        </div>
+                        <div class="partner-card-body">
+                            <h3><?= htmlspecialchars($row['nama_lembaga']); ?></h3>
+                            <p class="partner-info"><strong>Alamat:</strong> <?= htmlspecialchars($row['alamat']); ?></p>
+                            <p class="partner-info"><strong>PIC Lapangan:</strong> <?= htmlspecialchars($row['nama_pic']); ?></p>
+                            <p class="partner-desc"><?= htmlspecialchars($row['deskripsi']); ?></p>
+                            <a href="public-partner-detail.php?id=<?= $row['id']; ?>" class="btn-detail">Lihat Detail</a>
+                        </div>
+                    </div>
+            <?php 
+                }
+            } else { 
+            ?>
+                <p style="color: #777;">Belum ada mitra/lembaga penyalur yang ditemukan.</p>
+            <?php } ?>
         </div>
     </main>
 
