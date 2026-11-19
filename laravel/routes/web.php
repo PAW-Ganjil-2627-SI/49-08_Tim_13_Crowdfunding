@@ -2,15 +2,18 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\CampaignController;
 use App\Http\Controllers\DonorController;
 use App\Http\Controllers\PublicDonorController;
 use App\Http\Controllers\DonationController;
 
-// Homepage
-Route::get('/', function () {
-    return view('welcome');
-});
+// ==========================================
+// HOMEPAGE
+// ==========================================
+
+Route::get('/', [HomeController::class, 'index'])
+    ->name('home');
 
 // ==========================================
 // CAMPAIGN - PUBLIC
@@ -33,9 +36,7 @@ Route::prefix('admin/campaigns')
     ->group(function () {
 
         Route::get('/', 'adminIndex')->name('index');
-
         Route::get('/create', 'create')->name('create');
-
         Route::post('/', 'store')->name('store');
 
         Route::get('/{id}/edit', 'edit')
