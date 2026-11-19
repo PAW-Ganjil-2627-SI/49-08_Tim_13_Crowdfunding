@@ -6,6 +6,7 @@ use App\Http\Controllers\CampaignController;
 use App\Http\Controllers\DonorController;
 use App\Http\Controllers\PublicDonorController;
 use App\Http\Controllers\DonationController;
+use App\Http\Controllers\AuthController;
 
 // Homepage
 Route::get('/', function () {
@@ -98,3 +99,32 @@ Route::post('/campaigns/{id}/donate', [DonationController::class, 'store'])
 
 Route::get('/donasi/pembayaran', [DonationController::class, 'paymentPending'])
     ->name('donations.payment-pending');
+
+// --- RUTE AUTENTIKASI ---
+Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
+Route::post('/login', [AuthController::class, 'login'])->name('login.post');
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+// --- RUTE PUBLIK ---
+Route::get('/campaigns', [CampaignController::class, 'index'])->name('campaigns.index');
+Route::get('/campaigns/{id}', [CampaignController::class, 'show'])->name('campaigns.show');
+
+// --- RUTE LOGIN USER, STAFF & ADMIN (BISA TAMBAH CAMPAIGN) ---
+Route::middleware(['auth', 'role:admin,staff,user'])->group(function () {
+	Route::get('/user/campaigns/create', [CampaignController::class, 'create'])->name('user.campaigns.create');
+	Route::post('/user/campaigns', [CampaignController::class, 'store'])->name('user.campaigns.store');
+});
+
+// --- RUTE PANEL KHUSUS STAFF & ADMIN (BISA EDIT & LIHAT TABEL ADMIN) ---
+Route::middleware(['auth', 'role:admin,staff'])->prefix('admin')->name('admin.')->group(function () {
+	Route::get('/campaigns', [CampaignController::class, 'adminIndex'])->name('campaigns.index');
+	Route::get('/campaigns/create', [CampaignController::class, 'create'])->name('campaigns.create');
+	Route::post('/campaigns', [CampaignController::class, 'store'])->name('campaigns.store');
+	Route::get('/campaigns/{id}/edit', [CampaignController::class, 'edit'])->name('campaigns.edit');
+	Route::put('/campaigns/{id}', [CampaignController::class, 'update'])->name('campaigns.update');
+});
+
+// --- RUTE KHUSUS ADMIN SAJA (BISA HAPUS CAMPAIGN) ---
+Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+	Route::delete('/campaigns/{id}', [CampaignController::class, 'destroy'])->name('campaigns.destroy');
+});
