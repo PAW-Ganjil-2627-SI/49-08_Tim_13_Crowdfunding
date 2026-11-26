@@ -2,16 +2,22 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\CampaignController;
 use App\Http\Controllers\DonorController;
 use App\Http\Controllers\PublicDonorController;
 use App\Http\Controllers\DonationController;
 use App\Http\Controllers\AuthController;
+use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\BankAccountController;
+use App\Http\Controllers\PaymentController;
 
-// Homepage
-Route::get('/', function () {
-    return view('welcome');
-});
+// ==========================================
+// HOMEPAGE
+// ==========================================
+
+Route::get('/', [HomeController::class, 'index'])
+    ->name('home');
 
 // ==========================================
 // CAMPAIGN - PUBLIC
@@ -34,9 +40,7 @@ Route::prefix('admin/campaigns')
     ->group(function () {
 
         Route::get('/', 'adminIndex')->name('index');
-
         Route::get('/create', 'create')->name('create');
-
         Route::post('/', 'store')->name('store');
 
         Route::get('/{id}/edit', 'edit')
@@ -100,31 +104,39 @@ Route::post('/campaigns/{id}/donate', [DonationController::class, 'store'])
 Route::get('/donasi/pembayaran', [DonationController::class, 'paymentPending'])
     ->name('donations.payment-pending');
 
-// --- RUTE AUTENTIKASI ---
+    Route::get('/login', function () {
+	return view('auth.login');
+})->name('login');
+
+
+
+Route::post('/logout', function () {
+	Auth::logout();
+	return redirect()->route('home');
+})->name('logout');
+
+// 1. Halaman Form Login (GET)
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
+// 2. Proses Submit Form Login (POST) ->
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
+// 3. Proses Logout (POST)
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-// --- RUTE PUBLIK ---
-Route::get('/campaigns', [CampaignController::class, 'index'])->name('campaigns.index');
-Route::get('/campaigns/{id}', [CampaignController::class, 'show'])->name('campaigns.show');
+// BANK ACCOUNT
+Route::resource('bank', BankAccountController::class)->except(['show']);
 
-// --- RUTE LOGIN USER, STAFF & ADMIN (BISA TAMBAH CAMPAIGN) ---
-Route::middleware(['auth', 'role:admin,staff,user'])->group(function () {
-	Route::get('/user/campaigns/create', [CampaignController::class, 'create'])->name('user.campaigns.create');
-	Route::post('/user/campaigns', [CampaignController::class, 'store'])->name('user.campaigns.store');
-});
+// PAYMENT
+Route::get('/payments', [PaymentController::class, 'index'])
+    ->name('payments.index');
 
-// --- RUTE PANEL KHUSUS STAFF & ADMIN (BISA EDIT & LIHAT TABEL ADMIN) ---
-Route::middleware(['auth', 'role:admin,staff'])->prefix('admin')->name('admin.')->group(function () {
-	Route::get('/campaigns', [CampaignController::class, 'adminIndex'])->name('campaigns.index');
-	Route::get('/campaigns/create', [CampaignController::class, 'create'])->name('campaigns.create');
-	Route::post('/campaigns', [CampaignController::class, 'store'])->name('campaigns.store');
-	Route::get('/campaigns/{id}/edit', [CampaignController::class, 'edit'])->name('campaigns.edit');
-	Route::put('/campaigns/{id}', [CampaignController::class, 'update'])->name('campaigns.update');
-});
+Route::get('/payments/create', [PaymentController::class, 'create'])
+    ->name('payments.create');
 
-// --- RUTE KHUSUS ADMIN SAJA (BISA HAPUS CAMPAIGN) ---
-Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
-	Route::delete('/campaigns/{id}', [CampaignController::class, 'destroy'])->name('campaigns.destroy');
-});
+Route::post('/payments', [PaymentController::class, 'store'])
+    ->name('payments.store');
+
+Route::delete('/payments/{id}', [PaymentController::class, 'destroy'])
+    ->name('payments.destroy');
+
+Route::post('/payments/confirm', [PaymentController::class, 'confirm'])
+    ->name('payments.confirm');

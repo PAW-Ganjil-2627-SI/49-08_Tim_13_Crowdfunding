@@ -14,10 +14,18 @@ $credentials = $request->validate([
 'email' => 'required|email',
 'password' => 'required',
 ]);
+//  Cek Log-in
 if (Auth::attempt($credentials)) {
-$request->session()->regenerate();
+    $request->session()->regenerate();
+    $user = Auth::user();
 
-return redirect()->intended(route('admin.campaigns.index'))->with('success', 'Selamat datang kembali!');
+    // Admin & Staff -> Ke Dashboard Admin
+    if ($user->role === 'admin' || $user->role === 'staff') {
+        return redirect()->route('admin.campaigns.index');
+    }
+
+    // User Biasa -> Ke Halaman Campaign Publik
+    return redirect()->route('campaigns.index')->with('success', 'Selamat datang kembali!');
 }
 return back()->withErrors([
 'email' => 'Email atau password yang Anda masukkan salah.',
